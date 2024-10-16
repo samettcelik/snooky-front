@@ -3,7 +3,7 @@ import React from 'react';
 
 const EmptyPage = () => {
   return (
-    <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ height: '100vh', display: 'flex',alignItems: 'center' }}>
       <h1>Boş Sayfa</h1>
     </div>
   );
