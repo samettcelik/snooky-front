@@ -1,10 +1,3 @@
-/**
- * High level router.
- *
- * Note: It's recommended to compose related routes in internal router
- * components (e.g: `src/app/modules/Auth/pages/AuthPage`, `src/app/BasePage`).
- */
-
 import { FC, useEffect } from 'react'
 import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom'
 import { PrivateRoutes } from './PrivateRoutes'
@@ -18,15 +11,9 @@ import Preview from '../pages/preview/Preview'
 import { PricingScreen } from '../pages/pricing/PricingScreen'
 import { useAtom } from 'jotai'
 import { userAtom } from '../../store/jotai/UserAtom'
-import { userStore } from '../../store/userStore/userStore'
+import { useAuthStore } from '../../store/userStore/userStore';
 import EmptyPage from '../modules/auth/components/EmptyPage' // Boş sayfa bileşenini içe aktarın
 
-
-/**
- * Base URL of the website.
- *
- * @see https://facebook.github.io/create-react-app/docs/using-the-public-folder
- */
 const { PUBLIC_URL } = process.env
 
 const AppRoutes: FC = () => {
@@ -34,7 +21,8 @@ const AppRoutes: FC = () => {
   // NEW AUTH
   // const { currentUser } = useAuth()
 
-  const user = userStore((state: any) => state.user)
+  const user = useAuthStore((state) => state.user);
+
   return (
     <BrowserRouter basename={PUBLIC_URL}>
       <Routes>
@@ -44,14 +32,14 @@ const AppRoutes: FC = () => {
           <Route path='logout' element={<Logout />} />
           <Route path="preview" element={<Preview />} />
 
-          {(user?.name) ? (
+          {/* `user?.name` kontrolü yerine `user?.api_token` kullanıldı */}
+          {(user?.api_token) ? (
             <>
               <Route path='/*' element={<PrivateRoutes />} />
               <Route path='create-campaign/*' element={<CreateCampaign />} />
               <Route index element={<Navigate to='/dashboard' />} />
               <Route path='onboarding/*' element={<OnboardingPage />} />
               <Route path='empty' element={<EmptyPage />} /> {/* Boş sayfa yönlendirmesi eklendi */}
-
             </>
           ) : (
             <>

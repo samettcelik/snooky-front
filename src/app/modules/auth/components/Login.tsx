@@ -4,8 +4,7 @@ import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import axios from 'axios';
-import { useAuth } from '../core/Auth';
-import { AuthModel } from '../core/_models';
+import { useAuthStore } from '../../../../store/userStore/userStore';
 
 // Yup doğrulama şeması
 const loginSchema = Yup.object().shape({
@@ -28,71 +27,55 @@ const initialValues = {
 
 export function Login() {
   const [loading, setLoading] = useState(false);
-  const { saveAuth } = useAuth(); // useAuth kullanarak saveAuth fonksiyonunu aldık
-  const navigate = useNavigate(); // useNavigate'i kullanarak navigate fonksiyonunu oluşturduk
+  const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const formik = useFormik({
     initialValues,
     validationSchema: loginSchema,
     onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true);
-      setStatus(null); // Hata mesajını sıfırlayın
+      setStatus(null);
 
       try {
         const response = await axios.post('http://localhost:5000/api/login', {
           email: values.email,
           password: values.password,
         });
-      
-        console.log("API Yanıtı:", response); // Yanıtı kontrol edin
-      
+
         if (response.status === 200 && response.data.token) {
-          const authData: AuthModel = {
+          const authData = {
             api_token: response.data.token,
           };
-      
-          console.log("authData:", authData);      
-          saveAuth(authData);
-          console.log("localStorage'da auth (saveAuth sonrası):", localStorage.getItem('auth')); // Bu kontrolü yaparak kaydın başarılı olup olmadığını kontrol edin.
-          navigate('/b'); // Dashboard'a yönlendirin
+
+          setUser(authData); // Oturum bilgilerini `zustand` store'a kaydedin
+          navigate('/dashboard'); // Dashboard'a yönlendirin
         } else {
           setStatus('Login failed. Please check your credentials and try again.');
         }
       } catch (error) {
-        if (error.response) {
-          setStatus('Login failed: ' + error.response.data.message);
-        } else if (error.request) {
-          setStatus('Login failed: No response from the server. Please try again later.');
-        } else {
-          setStatus('Login failed: ' + error.message);
-        }
+        setStatus(
+          error.response
+            ? `Login failed: ${error.response.data.message}`
+            : 'Login failed: No response from the server. Please try again later.'
+        );
       } finally {
         setLoading(false);
         setSubmitting(false);
       }
-      
     },
   });
 
   return (
-    <form
-      className='form w-100'
-      onSubmit={formik.handleSubmit}
-      noValidate
-      id='kt_login_signin_form'
-    >
-      {/* begin::Heading */}
+    <form onSubmit={formik.handleSubmit} noValidate>
       <div className='text-center mb-11'>
         <h1 className='text-dark fw-bolder mb-3'>Sign In</h1>
         <div className='text-gray-500 fw-semibold fs-6'>Your Social Campaigns</div>
       </div>
-      {/* end::Heading */}
 
-      {/* begin::Separator */}
       <div className='separator separator-content my-14'>
         <span className='w-125px text-gray-500 fw-semibold fs-7'>Or with email</span>
       </div>
-      {/* end::Separator */}
 
       {formik.status && (
         <div
@@ -103,7 +86,6 @@ export function Login() {
         </div>
       )}
 
-      {/* begin::Form group - Email */}
       <div className='fv-row mb-8'>
         <label className='form-label fs-6 fw-bolder text-dark'>Email</label>
         <input
@@ -126,9 +108,7 @@ export function Login() {
           </div>
         )}
       </div>
-      {/* end::Form group - Email */}
 
-      {/* begin::Form group - Password */}
       <div className='fv-row mb-8'>
         <label className='form-label fw-bolder text-dark fs-6 mb-0'>Password</label>
         <input
@@ -153,26 +133,22 @@ export function Login() {
           </div>
         )}
       </div>
-      {/* end::Form group - Password */}
 
-      {/* begin::Action */}
       <div className='d-grid mb-10'>
         <button
           type='submit'
-          id='kt_sign_in_submit'
           className='btn btn-primary'
           disabled={formik.isSubmitting || !formik.isValid}
         >
           {!loading && <span className='indicator-label'>Continue</span>}
           {loading && (
-            <span className='indicator-progress' style={{ display: 'block' }}>
+            <span className='indicator-progress'>
               Please wait...
               <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
             </span>
           )}
         </button>
       </div>
-      {/* end::Action */}
 
       <div className='text-gray-500 text-center fw-semibold fs-6'>
         Not a Member yet?{' '}

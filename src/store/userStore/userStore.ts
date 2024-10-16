@@ -1,6 +1,14 @@
-import { create } from 'zustand'
+// userStore.ts
+import { create } from 'zustand';
 
-export const userStore = create((set) => ({
-  user: 1,
-  setUser: (user) => set(() => ({ user })),
-}))
+interface AuthState {
+  user: { api_token: string } | null;
+  setUser: (user: { api_token: string }) => void;
+  clearUser: () => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
+}));
