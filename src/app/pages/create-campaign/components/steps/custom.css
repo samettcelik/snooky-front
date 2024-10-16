@@ -1,0 +1,8 @@
+.inputTitle {
+    border: 1px solid white;
+}
+
+.inputTitle:focus {
+    background-color: #F9F9F9;
+    border: 1px solid #d9d9d9;
+}

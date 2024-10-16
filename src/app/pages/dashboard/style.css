@@ -1,0 +1,17 @@
+.onboardcard {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+@media only screen and (min-width: 768px) {
+    .onboardcard {
+        width: 24%;
+        margin-bottom: 1rem;
+    }
+}
+
+@media only screen and (min-width: 1400px) {
+    .onboardcard {
+        width: 12%;
+    }
+}
